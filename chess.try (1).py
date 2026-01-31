@@ -8,17 +8,17 @@ import time
 import threading
 from collections import defaultdict
 
-# Инициализация Pygame
+
 pygame.init()
 pygame.font.init()
 
-# Размеры и цвета - ЯРКАЯ цветовая схема
+
 SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 850
 BOARD_SIZE = 640
 SQUARE_SIZE = BOARD_SIZE // 8
 MARGIN = 20
 
-# Яркая палитра
+
 COLORS = {
     'BACKGROUND': (15, 25, 40),
     'BOARD_LIGHT': (245, 222, 179),
@@ -38,7 +38,7 @@ COLORS = {
 }
 
 
-# Шрифты
+
 def get_font(size, bold=False):
     try:
         if bold:
@@ -57,7 +57,7 @@ FONTS = {
     'PIECE': get_font(48)
 }
 
-# Шахматные символы
+
 PIECE_SYMBOLS = {
     'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
     'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
@@ -67,7 +67,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("♔ Шахматы Python AI ♚")
 clock = pygame.time.Clock()
 
-# Глобальные переменные
+
 board = chess.Board()
 selected_square = None
 legal_moves = []
@@ -105,7 +105,7 @@ class PurePythonAI:
     def create_opening_book(self):
         """Создаёт встроенную базу дебютов"""
         return {
-            # Стандартные дебюты
+
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -": ["e2e4", "d2d4", "g1f3", "c2c4"],
             "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3": ["e7e5", "c7c5", "e7e6", "c7c6"],
             "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6": ["g1f3", "b1c3", "f1c4"],
@@ -116,7 +116,7 @@ class PurePythonAI:
         """Оценка позиции"""
         score = 0
 
-        # 1. Материальный баланс
+
         for square in chess.SQUARES:
             piece = board_state.piece_at(square)
             if piece:
@@ -126,7 +126,7 @@ class PurePythonAI:
                 else:
                     score -= value
 
-        # 2. Активность фигур (контроль центра)
+
         center_squares = [chess.E4, chess.D4, chess.E5, chess.D5]
         for move in board_state.legal_moves:
             if move.to_square in center_squares:
@@ -135,21 +135,21 @@ class PurePythonAI:
                 else:
                     score -= 10
 
-        # 3. Безопасность короля
+
         if board_state.is_check():
             if board_state.turn == chess.WHITE:
                 score -= 50
             else:
                 score += 50
 
-        # 4. Мобильность
+
         mobility = len(list(board_state.legal_moves))
         if board_state.turn == chess.WHITE:
             score += mobility * 2
         else:
             score -= mobility * 2
 
-        # Возвращаем оценку с точки зрения белых
+
         return score if board_state.turn == chess.WHITE else -score
 
     def minimax(self, board_state, depth, alpha, beta, maximizing_player):
@@ -195,7 +195,7 @@ class PurePythonAI:
         """Получение лучшего хода"""
         global thinking_depth
 
-        # Сначала проверяем базу дебютов
+
         fen_key = board_state.fen().split(' ')[0]
         if fen_key in self.opening_book:
             for move_uci in self.opening_book[fen_key]:
@@ -215,7 +215,7 @@ class PurePythonAI:
                 except Exception as e:
                     continue
 
-        # Устанавливаем глубину поиска по сложности
+
         if difficulty_level == 1:
             thinking_depth = 2
             depth = 2
@@ -229,7 +229,7 @@ class PurePythonAI:
             thinking_depth = 5
             depth = 5
 
-        # Используем минимакс
+
         try:
             _, best_move = self.minimax(board_state, depth, -float('inf'), float('inf'),
                                         board_state.turn == chess.WHITE)
@@ -238,10 +238,10 @@ class PurePythonAI:
             best_move = None
 
         if best_move is None or best_move not in board_state.legal_moves:
-            # Резерв: выбираем случайный легальный ход
+
             legal_moves_list = list(board_state.legal_moves)
             if legal_moves_list:
-                # Предпочитаем шах или взятие
+
                 for move in legal_moves_list:
                     if board_state.gives_check(move):
                         return move
@@ -253,7 +253,7 @@ class PurePythonAI:
         return best_move
 
 
-# Создаём ИИ
+
 ai_engine = PurePythonAI()
 
 
@@ -269,7 +269,7 @@ class Button:
         self.animation = 0
 
     def draw(self, surface):
-        # Анимация наведения
+
         if self.hovered and self.animation < 10:
             self.animation += 1
         elif not self.hovered and self.animation > 0:
@@ -278,16 +278,16 @@ class Button:
         color = self.hover_color if self.hovered else self.color
         anim_offset = self.animation
 
-        # Рисуем кнопку с тенью
+
         shadow_rect = pygame.Rect(self.rect.x + 3, self.rect.y + 3,
                                   self.rect.width, self.rect.height)
         pygame.draw.rect(surface, (0, 0, 0, 100), shadow_rect, border_radius=12)
 
-        # Основная кнопка
+
         pygame.draw.rect(surface, color, self.rect, border_radius=12)
         pygame.draw.rect(surface, COLORS['TEXT'], self.rect, 3, border_radius=12)
 
-        # Текст
+
         text_surf = FONTS['BUTTON'].render(self.text, True, COLORS['TEXT'])
         text_rect = text_surf.get_rect(center=self.rect.center)
         surface.blit(text_surf, text_rect)
@@ -322,15 +322,14 @@ class ProgressIndicator:
             self.pulse = 0
 
     def draw(self, surface, thinking=False, depth=0):
-        # Фон
+
         pygame.draw.rect(surface, (40, 50, 70), self.rect, border_radius=8)
 
         if thinking:
-            # Анимированный прогресс-бар
             bar_width = int(self.rect.width * self.value / 100)
             bar_rect = pygame.Rect(self.rect.x, self.rect.y, bar_width, self.rect.height)
 
-            # Пульсирующий цвет
+
             pulse_color = (
                 COLORS['PROGRESS'][0] + int(self.pulse / 2),
                 COLORS['PROGRESS'][1],
@@ -338,16 +337,16 @@ class ProgressIndicator:
             )
             pygame.draw.rect(surface, pulse_color, bar_rect, border_radius=8)
 
-            # Текст
+
             status = FONTS['INFO'].render(f"AI анализирует (глубина {depth})...",
                                           True, COLORS['TEXT'])
             surface.blit(status, (self.rect.x, self.rect.y - 35))
 
-        # Обводка
+
         pygame.draw.rect(surface, COLORS['ACCENT'], self.rect, 2, border_radius=8)
 
 
-# Создаём UI с чёткими отступами
+
 def create_menu_buttons():
     button_width, button_height = 320, 70
     start_x = (SCREEN_WIDTH - button_width) // 2
@@ -387,12 +386,11 @@ menu_buttons = create_menu_buttons()
 game_buttons = create_game_buttons()
 settings_buttons = create_settings_buttons()
 
-# Индикаторы
+
 progress_indicator = ProgressIndicator(BOARD_SIZE + MARGIN * 2, 220, 400, 25)
 
 
 def draw_gradient_background():
-    """Рисует градиентный фон"""
     for y in range(SCREEN_HEIGHT):
         color = (
             COLORS['BACKGROUND'][0] + int(y * 0.02),
@@ -404,7 +402,7 @@ def draw_gradient_background():
 
 def draw_board_with_coordinates():
     """Рисует доску с координатами"""
-    # Доска
+
     for row in range(8):
         for col in range(8):
             x = col * SQUARE_SIZE + MARGIN
@@ -413,7 +411,7 @@ def draw_board_with_coordinates():
             color = COLORS['BOARD_LIGHT'] if (row + col) % 2 == 0 else COLORS['BOARD_DARK']
             pygame.draw.rect(screen, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
 
-            # Координаты (только по краям)
+ 
             if col == 0:
                 num = str(8 - row)
                 coord = FONTS['SMALL'].render(num, True,
@@ -426,7 +424,7 @@ def draw_board_with_coordinates():
                                               COLORS['TEXT'] if col % 2 == 0 else COLORS['BOARD_LIGHT'])
                 screen.blit(coord, (x + SQUARE_SIZE - 18, y + SQUARE_SIZE - 22))
 
-    # Подсветка последнего хода
+
     if last_move:
         from_row = 7 - chess.square_rank(last_move.from_square)
         from_col = chess.square_file(last_move.from_square)
@@ -440,7 +438,7 @@ def draw_board_with_coordinates():
             s.fill(COLORS['LAST_MOVE'])
             screen.blit(s, (x, y))
 
-    # Подсветка выбранной фигуры
+
     if selected_square is not None:
         row = 7 - chess.square_rank(selected_square)
         col = chess.square_file(selected_square)
@@ -463,12 +461,12 @@ def draw_pieces_with_shadow():
                     x = col * SQUARE_SIZE + MARGIN + SQUARE_SIZE // 2
                     y = row * SQUARE_SIZE + MARGIN + 50 + SQUARE_SIZE // 2
 
-                    # Тень
+
                     shadow = FONTS['PIECE'].render(emoji, True, (0, 0, 0, 180))
                     shadow_rect = shadow.get_rect(center=(x + 2, y + 2))
                     screen.blit(shadow, shadow_rect)
 
-                    # Фигура (белые или чёрные)
+
                     color = COLORS['TEXT'] if symbol.isupper() else (20, 20, 20)
                     text = FONTS['PIECE'].render(emoji, True, color)
                     text_rect = text.get_rect(center=(x, y))
@@ -490,7 +488,7 @@ def draw_legal_moves_highlight():
                     pygame.draw.circle(screen, (255, 80, 80, 220),
                                        (center_x, center_y), SQUARE_SIZE // 3, 4)
                 else:
-                    # Обычный ход - зелёный кружок
+
                     pygame.draw.circle(screen, COLORS['LEGAL_MOVE'][:3],
                                        (center_x, center_y), SQUARE_SIZE // 6)
 
@@ -501,7 +499,7 @@ def safe_san(board_state, move):
         if move in board_state.legal_moves:
             return board_state.san(move)
         else:
-            # Пытаемся получить UCI нотацию
+
             return chess.square_name(move.from_square) + chess.square_name(move.to_square)
     except:
         return chess.square_name(move.from_square) + chess.square_name(move.to_square)
@@ -512,31 +510,31 @@ def draw_info_panel():
     panel_x = BOARD_SIZE + MARGIN * 2
     panel_width = SCREEN_WIDTH - panel_x - MARGIN
 
-    # Фон панели
+
     pygame.draw.rect(screen, COLORS['PANEL_BG'],
                      (panel_x, MARGIN, panel_width, SCREEN_HEIGHT - MARGIN * 2),
                      border_radius=15)
 
     y_offset = MARGIN + 20
 
-    # Заголовок
+
     title = FONTS['HEADER'].render("ШАХМАТЫ AI", True, COLORS['ACCENT'])
     screen.blit(title, (panel_x + (panel_width - title.get_width()) // 2, y_offset))
     y_offset += 60
 
-    # Статус ИИ
+
     ai_status = FONTS['INFO'].render("✅ Python Chess AI готов", True, COLORS['SUCCESS'])
     screen.blit(ai_status, (panel_x + 20, y_offset))
     y_offset += 40
 
-    # Сложность
+
     diff_names = ["ЛЁГКИЙ", "СРЕДНИЙ", "СЛОЖНЫЙ", "ЭКСПЕРТ"]
     diff_text = f"Сложность: {diff_names[difficulty - 1]}"
     diff = FONTS['INFO'].render(diff_text, True, COLORS['TEXT'])
     screen.blit(diff, (panel_x + 20, y_offset))
     y_offset += 40
 
-    # Чей ход
+
     turn_text = "ХОД БЕЛЫХ" if board.turn == chess.WHITE else "ХОД ЧЁРНЫХ"
     turn_color = COLORS['TEXT'] if board.turn == chess.WHITE else (200, 200, 200)
     turn_bg = (70, 80, 100) if board.turn == chess.WHITE else (50, 60, 80)
@@ -550,7 +548,7 @@ def draw_info_panel():
                        turn_rect.centery - turn.get_height() // 2))
     y_offset += 70
 
-    # Статус игры
+
     if board.is_checkmate():
         status = "♔ МАТ!"
         color = COLORS['ERROR']
@@ -571,7 +569,7 @@ def draw_info_panel():
     screen.blit(game_status, (panel_x + 20, y_offset))
     y_offset += 60
 
-    # Индикатор прогресса ИИ
+
     progress_indicator.rect.x = panel_x + 20
     progress_indicator.rect.y = y_offset
     progress_indicator.rect.width = panel_width - 40
@@ -581,12 +579,12 @@ def draw_info_panel():
     progress_indicator.draw(screen, is_thinking, thinking_depth)
     y_offset += 80
 
-    # История ходов
+
     moves_title = FONTS['INFO'].render("ПОСЛЕДНИЕ ХОДЫ:", True, COLORS['ACCENT'])
     screen.blit(moves_title, (panel_x + 20, y_offset))
     y_offset += 35
 
-    # Отображаем ходы в две колонки
+
     moves = list(board.move_stack)
     col1_x = panel_x + 25
     col2_x = panel_x + panel_width // 2 + 10
@@ -614,15 +612,15 @@ def draw_info_panel():
 
             move_surf = FONTS['SMALL'].render(move_text, True, COLORS['TEXT'])
 
-            # Проверяем, чтобы текст не выходил за границы панели
+
             if y_offset + row < SCREEN_HEIGHT - 100:
                 screen.blit(move_surf, (col, y_offset + row))
 
-    # Кнопки управления
+
     for btn in game_buttons:
         btn.draw(screen)
 
-    # Статусное сообщение
+
     if status_message:
         status_surf = FONTS['SMALL'].render(status_message, True, status_color)
         screen.blit(status_surf, (panel_x + 20, SCREEN_HEIGHT - MARGIN - 35))
@@ -632,28 +630,28 @@ def draw_menu_screen():
     """Главное меню"""
     draw_gradient_background()
 
-    # Заголовок с иконками
+
     title1 = FONTS['TITLE'].render("♔ ШАХМАТЫ", True, COLORS['ACCENT'])
     title2 = FONTS['TITLE'].render("PYTHON AI ♚", True, COLORS['TEXT'])
 
     screen.blit(title1, ((SCREEN_WIDTH - title1.get_width()) // 2, 150))
     screen.blit(title2, ((SCREEN_WIDTH - title2.get_width()) // 2, 220))
 
-    # Подзаголовок
+
     subtitle = FONTS['INFO'].render("Игра против искусственного интеллекта на Python",
                                     True, (180, 200, 255))
     screen.blit(subtitle, ((SCREEN_WIDTH - subtitle.get_width()) // 2, 290))
 
-    # Кнопки меню
+
     for btn in menu_buttons:
         btn.draw(screen)
 
-    # Статус
+
     ai_status = FONTS['INFO'].render("✅ Python Chess AI готов к игре",
                                      True, COLORS['SUCCESS'])
     screen.blit(ai_status, ((SCREEN_WIDTH - ai_status.get_width()) // 2, 680))
 
-    # Подсказка
+
     hint = FONTS['SMALL'].render("Не требует установки Stockfish • Работает на чистом Python",
                                  True, (150, 180, 220))
     screen.blit(hint, ((SCREEN_WIDTH - hint.get_width()) // 2, 730))
@@ -670,21 +668,21 @@ def draw_settings_screen():
                                 True, COLORS['TEXT'])
     screen.blit(desc, ((SCREEN_WIDTH - desc.get_width()) // 2, 180))
 
-    # Кнопки сложности
+
     for btn in settings_buttons:
-        # Подсвечиваем текущую сложность
+
         prefixes = ["⭐", "⚡", "🔥", "👑"]
         if btn.text.startswith(prefixes[difficulty - 1]):
             btn.hovered = True
         btn.draw(screen)
 
-    # Текущая настройка
+
     diff_names = ["ЛЁГКИЙ", "СРЕДНИЙ", "СЛОЖНЫЙ", "ЭКСПЕРТ"]
     current_text = f"Текущая сложность: {diff_names[difficulty - 1]}"
     current = FONTS['INFO'].render(current_text, True, COLORS['SUCCESS'])
     screen.blit(current, ((SCREEN_WIDTH - current.get_width()) // 2, 630))
 
-    # Подсказка
+
     hint = FONTS['SMALL'].render("Более глубкий анализ = сильнее ИИ = дольше время хода",
                                  True, (150, 180, 220))
     screen.blit(hint, ((SCREEN_WIDTH - hint.get_width()) // 2, 680))
@@ -740,7 +738,7 @@ def start_new_game(color):
     print(f"НОВАЯ ИГРА: Вы играете за {'белых' if color == chess.WHITE else 'чёрных'}")
     print(f"{'=' * 60}")
 
-    # Если играем чёрными, ИИ ходит первым
+
     if color == chess.BLACK:
         make_ai_move()
 
@@ -767,16 +765,15 @@ def _ai_move_thread():
     try:
         start_time = time.time()
 
-        # Создаём копию доски для безопасного анализа
+
         board_copy = board.copy()
         move = ai_engine.get_best_move(board_copy, difficulty)
         think_time = time.time() - start_time
 
         if move and move in board.legal_moves:
-            # Сохраняем ход для выполнения в основном потоке
             ai_engine.pending_move = move
 
-            # Получаем нотацию хода безопасно
+
             try:
                 move_san = board.san(move)
             except:
@@ -786,7 +783,7 @@ def _ai_move_thread():
             status_color = COLORS['SUCCESS']
             print(f"Python AI: {move_san} (за {think_time:.2f}с)")
 
-            # Сохраняем в историю
+
             ai_move_history.append((move_san, think_time))
         else:
             status_message = "⚠ AI не смог найти легальный ход"
@@ -843,7 +840,6 @@ def handle_board_click(pos):
                     legal_moves = []
                     return
 
-        # Выбор другой своей фигуры
         piece = board.piece_at(square_idx)
         if piece and piece.color == player_color:
             selected_square = square_idx
@@ -852,14 +848,13 @@ def handle_board_click(pos):
             selected_square = None
             legal_moves = []
     else:
-        # Выбор фигуры
         piece = board.piece_at(square_idx)
         if piece and piece.color == player_color:
             selected_square = square_idx
             legal_moves = [m for m in board.legal_moves if m.from_square == square_idx]
 
 
-# Основной игровой цикл
+
 def main():
     global current_state, difficulty, game_over, player_color, is_thinking
     global status_message, status_color
@@ -877,7 +872,7 @@ def main():
     while running:
         mouse_pos = pygame.mouse.get_pos()
 
-        # Обновляем hover состояние кнопок
+
         if current_state == "MENU":
             for btn in menu_buttons:
                 btn.check_hover(mouse_pos)
@@ -972,7 +967,7 @@ def main():
                 elif event.key == pygame.K_n and current_state == "PLAYING":
                     start_new_game(player_color)
 
-        # Обработка хода AI
+
         if current_state == "PLAYING" and ai_engine.pending_move and not is_thinking:
             try:
                 if ai_engine.pending_move in board.legal_moves:
@@ -988,7 +983,7 @@ def main():
 
             ai_engine.pending_move = None
 
-        # Отрисовка
+
         screen.fill(COLORS['BACKGROUND'])
 
         if current_state == "MENU":
@@ -1006,7 +1001,7 @@ def main():
         elif current_state == "SETTINGS":
             draw_settings_screen()
 
-        # Обновляем индикатор прогресса
+
         progress_indicator.update(is_thinking)
 
         pygame.display.flip()
@@ -1017,4 +1012,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
